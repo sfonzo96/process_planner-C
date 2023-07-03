@@ -12,3 +12,31 @@ Desarrollar un programa en C que simule el funcionamiento de un sistema operativ
 -   El programa debe tener la capacidad de gestionar eventos como la llegada de nuevos procesos, la finalización de procesos en ejecución y cambios en las prioridades o algoritmos de planificación.
 -   El usuario debe tener la opción de detener la simulación en cualquier momento.
 -   Utilizar estructuras de datos adecuadas para representar los procesos y su estado en el sistema. El programa debe ser intuitivo y mostrar información clara sobre el estado de los procesos en cada momento.
+
+## Compilación
+
+### Utilizando una terminal
+
+Será necesario tener instalado en el sistema GCC (GNU Compiler Collection) u otro compilador de preferencia para lenguaje C.
+Para verificar si está disponible en el equipo ingresá en la terminal:
+
+```
+    gcc --version
+```
+
+Si lo está, abre la terminal de preferencia en la ubicación en la que hayas guardado los archivos fuente de este repositorio e ingresa lo siguiente en la terminal:
+
+```
+    gcc main.c procesos_functions.c procesos_functions.h -o process_planner
+```
+
+Esto generará un archivo ejecutable (.exe) llamado process_planner para que se pueda ejecutar y probar el programa ingresando en terminal:
+
+```
+    ./process_planner
+```
+
+### Utilizando un IDE
+
+Esto varía de acuerdo al IDE que se quiera utilizar. En términos generales, para ejecutarlo, es necesario crear un proyecto vacío y añadir al directorio del mismo los archivos fuente. Luego se presiona el botón de compilación que ofrezca el IDE. Para ejecutar se presiona el botón de ejecución que ofrezca el IDE.
+Este proyecto se creo utilizando [Dev C++](https://sourceforge.net/projects/orwelldevcpp/). En el se pueden presionar dichos botones o la tecla F9 (compilar), seguida de la tecla F10 (ejecutar), o F11 (compilar y ejecutar).
