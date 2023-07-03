@@ -40,3 +40,7 @@ Esto generará un archivo ejecutable (.exe) llamado process_planner para que se 
 
 Esto varía de acuerdo al IDE que se quiera utilizar. En términos generales, para ejecutarlo, es necesario crear un proyecto vacío y añadir al directorio del mismo los archivos fuente. Luego se presiona el botón de compilación que ofrezca el IDE. Para ejecutar se presiona el botón de ejecución que ofrezca el IDE.
 Este proyecto se creo utilizando [Dev C++](https://sourceforge.net/projects/orwelldevcpp/). En el se pueden presionar dichos botones o la tecla F9 (compilar), seguida de la tecla F10 (ejecutar), o F11 (compilar y ejecutar).
+
+## Licencia
+
+Este repositorio está licenciado bajo la [Licencia MIT](LICENSE).
