@@ -27,6 +27,7 @@ void initProcessPlanner() {
 	
 	system("cls");
 	
+	// Asks for the desired algorithm
 	printf("Ingresa el valor del algoritmo deseado para ejecutar los procesos:\n1- Round Robin\n2- Por priodidad\n3- FIFO\n");
 	while (scanf("%d", &chosenAlgorithm) != 1 || chosenAlgorithm < 0 || chosenAlgorithm > 3) {
 		printf("El valor ingresado no es válido, ingresa otro...\n");
@@ -36,6 +37,7 @@ void initProcessPlanner() {
 	
 	system("cls");
 	
+	// Shows info on the chosen algorithm
 	switch (chosenAlgorithm) {
 		case 1: 
 			printf("Elegiste el algoritmo Round Robin.\nEste asigna a cada proceso una porción de tiempo equitativa y ordenada, tratando a todos los procesos con la misma prioridad.\n\n");
@@ -47,6 +49,7 @@ void initProcessPlanner() {
 			printf("Elegiste el algoritmo FIFO (First In First Out).\nEste ejecuta los procesos por completo en el orden que ingresan.\n\n");
 	};
 	
+	// Starts process planner
 	struct Process processesList[initialProcessesQuantity];
 	arraySize = sizeof(processesList) / sizeof(processesList[0]);
 	populateProcessesList(processesList, arraySize);
@@ -101,6 +104,7 @@ void populateProcessesList(struct Process processesList[], int initialProcessesQ
 };
 
 void addNewProcess(struct Process processesList[], int arraySize) {
+	// Not used currently
 	int i;
 	for (i = 0; i < arraySize; i++) {
 		if (strcmp(processesList[i].status, "Completed") == 0) {
@@ -116,6 +120,7 @@ void addNewProcess(struct Process processesList[], int arraySize) {
 };
 
 void runProcessesPlanner(struct Process processesList[], int arraySize, int algorithm) {
+	// Defines which algorithm will be executed on user's choice
 	switch (algorithm) {
 		case 1:
 			roundRobin(processesList, arraySize);
@@ -146,18 +151,25 @@ void roundRobin(struct Process processesList[], int arraySize) {
 		printf("\nNew Round:\n");
 
 		for (i = 0; i < arraySize; i++) {
+			// Skips the process if status == Completed
 			if (strcmp(processesList[i].status, "Completed") == 0) {
 				continue;
 			}
 			
 			strcpy(processesList[i].status, "Running");
 
+			// Gets the starting clock time
 			startTime = clock();
+			
+			// Resets the passed time
 			float passedTime = 0;
 			
 			int j = 0;
 			while (passedTime < quantum) {
+				// Sets the current clock time
 				currentTime = clock();
+				
+				// Calculated the time passed in ms
     			passedTime = (float)(currentTime - startTime) / CLOCKS_PER_SEC * 1000;
 				if (j == 0) {
 					printf("El proceso %s está en ejecución. Estado: %s.\n", processesList[i].title, processesList[i].status);
@@ -165,10 +177,8 @@ void roundRobin(struct Process processesList[], int arraySize) {
 				
 				j++;
 			};
-			
-			processesList[i].timeLeft -= quantum;
-			
-			if (processesList[i].timeLeft <= 0) {
+			// Subtracts the quantum from the time left and completes the process or puts in a waiting state
+			if ((processesList[i].timeLeft -= quantum) <= 0) {
 				strcpy(processesList[i].status, "Completed");
 				printf("\nEl proceso %s se ha completado. Estado: %s.\n", processesList[i].title, processesList[i].status);
 			} else {
@@ -183,8 +193,10 @@ void roundRobin(struct Process processesList[], int arraySize) {
 
 void priority(struct Process processesList[], int arraySize) {	
 	system("cls");
-
+	
+	// Sorts by priority value (asc)
 	sortByPriority(processesList, arraySize);
+	// Runs processes sequentially
 	runProcesses(processesList, arraySize);
 	
 	printf("\nSe completaron todos los procesos en cola...\n");
@@ -192,7 +204,8 @@ void priority(struct Process processesList[], int arraySize) {
 
 void fifo(struct Process processesList[], int arraySize) {
 	system("cls");
-
+	
+	// Runs processes sequentially
 	runProcesses(processesList, arraySize);
 	
 	printf("\nSe completaron todos los procesos en cola...\n");
@@ -204,8 +217,10 @@ void runProcesses(struct Process processesList[], int arraySize) {
 		float passedTime = 0;
 		clock_t startTime, currentTime;
 		
+		// Gets the starting clock time
 		startTime = clock();
 		int j = 0;
+		// Loops until passed time is equal to timeLeft (i.e. process complete)
 		while (passedTime < processesList[i].timeLeft) {
 			currentTime = clock();
 			passedTime = (float)(currentTime - startTime) / CLOCKS_PER_SEC * 1000;
@@ -224,6 +239,7 @@ void sortByPriority(struct Process processesList[], int arraySize) {
 	int i, j;
 	struct Process aux;
 	
+	// For each element, checks all of the others to the right, and swaps if priority is precendent (1 is most)
 	for (i = 0; i < arraySize; i++) {
         for (j = i + i; j < arraySize; j++) {
             if (processesList[i].priority > processesList[j].priority) {
@@ -238,11 +254,12 @@ void sortByPriority(struct Process processesList[], int arraySize) {
 bool checkCompletion(struct Process processesList[], int arraySize) {
 	int i;
 	
+	// Looks for a process that's not already completed, if there isn't any will return true and the RR algorithm will end
 	for (i = 0; i < arraySize; i++) {
 		if (strcmp(processesList[i].status, "Completed") != 0) {
 			return false;
 		}
-	}
+	};
 	
 	return true;
 }
