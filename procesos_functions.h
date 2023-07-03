@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <conio.h>
+#include <locale.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
+
+// Defines process structure (struct ~ object/class)
+struct Process {
+	char title[20];
+	float timeLeft;
+	char status[10];
+	int priority;
+};
+
+// Function Prototypes // 
+// Clears input buffer
+void clearInputBuffer();
+// Manages the cration of processes lists and algorithm choosing
+void initProcessPlanner();
+// Asks the user for project values and creates it
+struct Process createProcess();
+// Populates the processesList, requires the list to be created with a specified size previously
+void populateProcessesList(struct Process processesList[], int initialProcessesQuantity);
+// Adds a process to the list by replacing a completed one
+void addNewProcess();
+// Starts processes planner with the selected algorithm
+void runProcessesPlanner(struct Process processesList[], int arraySize, int algorithm);
+// Runs processes sequentially
+void runProcesses(struct Process processesList[], int arraySize);
+// Sorts the array by priority value (1 is most precedent)
+void sortByPriority(struct Process processesList[], int arraySize);
+// Runs Round Robin algorithm
+void roundRobin(struct Process processesList[], int arraySize);
+// Runs Priority algorithm
+void priority(struct Process processesList[], int arraySize);
+// Runs FIFO (First In First Out) algorithm
+void fifo(struct Process processesList[], int arraySize);
+// Checks if all processes are completed (only for RR)
+bool checkCompletion(struct Process processesList[], int length);
