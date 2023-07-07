@@ -16,10 +16,21 @@ void initProcessPlanner() {
 	int initialProcessesQuantity;
 	int arraySize;
 	int chosenAlgorithm;
+	int chosenLoadingMethod;
 	
 	// Asks the user for the amount of process the planner should start executing
 	printf("Ingresa una cantidad inicial de procesos para que el sistema ejecute:\n");
 	while (scanf("%d", &initialProcessesQuantity) != 1) {
+		printf("El valor ingresado no es válido, ingresa otro...\n");
+		clearInputBuffer();
+	};
+	clearInputBuffer();
+	
+	system("cls");
+	
+	// Asks for the desired loading method
+	printf("Puedes cargar los procesos manualmente o mediante un archivo txt (previamente creado con formato similar a csv).\nIngresa el valor correspondiente:\n1- Manualmente\n2- Archivo .txt\n");
+	while (scanf("%d", &chosenLoadingMethod) != 1 || chosenLoadingMethod < 0 || chosenLoadingMethod > 2) {
 		printf("El valor ingresado no es válido, ingresa otro...\n");
 		clearInputBuffer();
 	};
@@ -40,23 +51,32 @@ void initProcessPlanner() {
 	// Shows info on the chosen algorithm
 	switch (chosenAlgorithm) {
 		case 1: 
-			printf("Elegiste el algoritmo Round Robin.\nEste asigna a cada proceso una porción de tiempo equitativa y ordenada, tratando a todos los procesos con la misma prioridad.\n\n");
+			printf("Elegiste el algoritmo Round Robin.\nEste asigna a cada proceso una porción de tiempo equitativa y ordenada, tratando a todos los procesos con la misma prioridad.\nPresiona cualquier tecla para continuar...\n");
+			getch();
 			break;
 		case 2:
-			printf("Elegiste el algoritmo por prioridad.\nEste ejecuta los procesos por completo en el orden de prioridad asignado.\n\n");
+			printf("Elegiste el algoritmo por prioridad.\nEste ejecuta los procesos por completo en el orden de prioridad asignado.\nPresiona cualquier tecla para continuar...\n");
+			getch();
 			break;
 		default:
-			printf("Elegiste el algoritmo FIFO (First In First Out).\nEste ejecuta los procesos por completo en el orden que ingresan.\n\n");
+			printf("Elegiste el algoritmo FIFO (First In First Out).\nEste ejecuta los procesos por completo en el orden que ingresan.\nPresiona cualquier tecla para continuar...\n");
+			getch();
 	};
 	
 	// Starts process planner
 	struct Process processesList[initialProcessesQuantity];
 	arraySize = sizeof(processesList) / sizeof(processesList[0]);
-	populateProcessesList(processesList, arraySize);
+	
+	if (chosenLoadingMethod == 1 ) {
+		populateProcessesListByUserInput(processesList, arraySize);
+	} else {
+		populateProcessesListByTxt(processesList, arraySize);
+	}
+	
 	runProcessesPlanner(processesList, arraySize, chosenAlgorithm);
 };
 
-struct Process createProcess() {
+struct Process createProcessByUserInput() {
 	
 	struct Process process;
 	char auxTitle[20];
@@ -94,21 +114,74 @@ struct Process createProcess() {
 	return process;
 };
 
-void populateProcessesList(struct Process processesList[], int initialProcessesQuantity) {	
+void populateProcessesListByUserInput(struct Process processesList[], int initialProcessesQuantity) {	
 	
 	// Calls for createProcess() times initialProcessesQuantity
 	int i;
 	for (i = 0; i < initialProcessesQuantity; i++) {	
-		processesList[i] = createProcess(); 
+		processesList[i] = createProcessByUserInput(); 
 	};
 };
+
+void populateProcessesListByTxt(struct Process processesList[], int initialProcessesQuantity) {
+	// https://www.tutorialspoint.com/c_standard_library/c_function_fgets.htm
+	// https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
+		
+	FILE* processesListTxt = fopen(".\\processesList.txt", "r");
+	
+	if (processesListTxt == NULL) {
+        printf("No se pudo cargar el archivo. Tenés que ingresar los datos manualmente...\n");
+        populateProcessesListByUserInput(processesList, initialProcessesQuantity);
+    } else {
+    	char line[1024];
+    	int i = 0;
+    	while(fgets(line, sizeof(line), processesListTxt) != NULL) {
+    		// splits the string into tokens (substrings)
+	    	char *token = strtok(line, ",");
+	    	
+	    	// Checks for token
+			if (token != NULL) {
+				strcpy(processesList[i].title, token);
+				// Moves to next token
+				token = strtok(NULL, ",");
+			}
+			
+			if (token != NULL) {
+				processesList[i].timeLeft = atof(token);
+				token = strtok(NULL, ",");
+			}
+			
+			if (token != NULL) {
+				strcpy(processesList[i].status, token);
+				token = strtok(NULL, ",");
+			}
+			
+			if (token != NULL) {
+				processesList[i].priority = atoi(token);
+				token = strtok(NULL, ",");
+			}
+	        
+	        i++;
+		};
+		
+		// Closes file access
+		fclose(processesListTxt);
+		
+		// If the same, data should have been asigned correctly, asumming correct csv order
+		if (i!= initialProcessesQuantity) {
+			printf("%d , %d", i, initialProcessesQuantity);
+			printf("La cantidad de procesos en el archivo no coincide con la que elegiste inicialmente.\nReinicia el programa.");
+			exit(1);
+		}
+	}; 
+}
 
 void addNewProcess(struct Process processesList[], int arraySize) {
 	// Not used currently
 	int i;
 	for (i = 0; i < arraySize; i++) {
 		if (strcmp(processesList[i].status, "Completed") == 0) {
-			processesList[i] = createProcess();
+			processesList[i] = createProcessByUserInput();
 		};
 		
 		if (i == arraySize - 1) {
@@ -134,7 +207,6 @@ void runProcessesPlanner(struct Process processesList[], int arraySize, int algo
 };
 
 void roundRobin(struct Process processesList[], int arraySize) {
-	int i;
 	float quantum;
 	clock_t startTime, currentTime;
 	
@@ -148,44 +220,41 @@ void roundRobin(struct Process processesList[], int arraySize) {
 	clearInputBuffer();
 		
 	while (!checkCompletion(processesList, arraySize)) {
+		system("cls");
 		printf("\nNew Round:\n");
 
-		for (i = 0; i < arraySize; i++) {
+		for (int i = 0; i < arraySize; i++) {
 			// Skips the process if status == Completed
 			if (strcmp(processesList[i].status, "Completed") == 0) {
 				continue;
 			}
 			
 			strcpy(processesList[i].status, "Running");
-
-			// Gets the starting clock time
-			startTime = clock();
 			
+			printStatus(processesList, arraySize);
+						
 			// Resets the passed time
 			float passedTime = 0;
 			
-			int j = 0;
+			// Gets the starting clock time
+			startTime = clock();
+			
 			while (passedTime < quantum) {
 				// Sets the current clock time
 				currentTime = clock();
 				
 				// Calculated the time passed in ms
     			passedTime = (float)(currentTime - startTime) / CLOCKS_PER_SEC * 1000;
-				if (j == 0) {
-					printf("El proceso %s está en ejecución. Estado: %s.\n", processesList[i].title, processesList[i].status);
-				}
-				
-				j++;
 			};
 			// Subtracts the quantum from the time left and completes the process or puts in a waiting state
 			if ((processesList[i].timeLeft -= quantum) <= 0) {
-				strcpy(processesList[i].status, "Completed");
-				printf("\nEl proceso %s se ha completado. Estado: %s.\n", processesList[i].title, processesList[i].status);
+				strcpy(processesList[i].status, "Completed");	
 			} else {
 				strcpy(processesList[i].status, "Waiting");
-				printf("\nEl proceso %s no se pudo completar. Estado: %s.\nCorriendo el siguiente en cola.\n", processesList[i].title, processesList[i].status);
 			};
 		}
+		
+		printStatus(processesList, arraySize);
 	}
 	
 	printf("\nSe completaron todos los procesos en cola...\n");
@@ -217,21 +286,26 @@ void runProcesses(struct Process processesList[], int arraySize) {
 		float passedTime = 0;
 		clock_t startTime, currentTime;
 		
+		printStatus(processesList, arraySize);
+		
 		// Gets the starting clock time
 		startTime = clock();
-		int j = 0;
 		// Loops until passed time is equal to timeLeft (i.e. process complete)
 		while (passedTime < processesList[i].timeLeft) {
 			currentTime = clock();
 			passedTime = (float)(currentTime - startTime) / CLOCKS_PER_SEC * 1000;
-			if (j == 0) {
-				printf("El proceso %s está en ejecución.\n", processesList[i].title);
-			}
-			j++;
 		}
 		
 		strcpy(processesList[i].status, "Completed");
-		printf("El proceso %s se ha completado.\n", processesList[i].title);
+		
+		printStatus(processesList, arraySize);
+	}
+}
+
+void printStatus(struct Process processesList[], int arraySize) {
+	system("cls");
+	for (int j = 0; j < arraySize; j++) {
+		printf("\nEl proceso %s está en ejecución. Estado: %s.\n", processesList[j].title, processesList[j].status);
 	}
 }
 

@@ -13,6 +13,10 @@ Desarrollar un programa en C que simule el funcionamiento de un sistema operativ
 -   El usuario debe tener la opción de detener la simulación en cualquier momento.
 -   Utilizar estructuras de datos adecuadas para representar los procesos y su estado en el sistema. El programa debe ser intuitivo y mostrar información clara sobre el estado de los procesos en cada momento.
 
+## Carga de procesos con archivo .txt
+
+El programa permite cargar los procesos iniciales a través de un archivo .txt o de manera manual a través de la terminal. Para el primer caso, el archivo DEBE llamarse processesList, existir antes de seleccionar la opción de carga de archivos y debe tener un formato de valores separados por coma (csv). Ver [ejemplo](https://github.com/sfonzo96/process_planner-C/blob/main/processesList.txt).
+
 ## Compilación
 
 ### Utilizando una terminal
