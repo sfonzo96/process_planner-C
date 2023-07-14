@@ -13,14 +13,14 @@ void clearInputBuffer() {
 };
 
 void initProcessPlanner() {
-	int initialProcessesQuantity;
+	int processesQuantity;
 	int arraySize;
 	int chosenAlgorithm;
 	int chosenLoadingMethod;
 	
 	// Asks the user for the amount of process the planner should start executing
 	printf("Ingresa una cantidad inicial de procesos para que el sistema ejecute:\n");
-	while (scanf("%d", &initialProcessesQuantity) != 1) {
+	while (scanf("%d", &processesQuantity) != 1) {
 		printf("El valor ingresado no es válido, ingresa otro...\n");
 		clearInputBuffer();
 	};
@@ -64,16 +64,15 @@ void initProcessPlanner() {
 	};
 	
 	// Starts process planner
-	struct Process processesList[initialProcessesQuantity];
-	arraySize = sizeof(processesList) / sizeof(processesList[0]);
+	struct Process processesList[processesQuantity];
 	
 	if (chosenLoadingMethod == 1 ) {
-		populateProcessesListByUserInput(processesList, arraySize);
+		populateProcessesListByUserInput(processesList, processesQuantity);
 	} else {
-		populateProcessesListByTxt(processesList, arraySize);
+		populateProcessesListByTxt(processesList, processesQuantity);
 	}
 	
-	runProcessesPlanner(processesList, arraySize, chosenAlgorithm);
+	runProcessesPlanner(processesList, processesQuantity, chosenAlgorithm);
 };
 
 struct Process createProcessByUserInput() {
@@ -126,11 +125,12 @@ void populateProcessesListByUserInput(struct Process processesList[], int initia
 void populateProcessesListByTxt(struct Process processesList[], int initialProcessesQuantity) {
 	// https://www.tutorialspoint.com/c_standard_library/c_function_fgets.htm
 	// https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
-		
+	// Trabajando con punteros y malloc se puede crear un array de manera dinámica sin necesidad de pedir al usuario la cantidad de procesos
+	// Para ello se debe recorrer el .txt calculando la cantidad de saltos de línea que hay presentes
 	FILE* processesListTxt = fopen(".\\processesList.txt", "r");
 	
 	if (processesListTxt == NULL) {
-        printf("No se pudo cargar el archivo. Tenés que ingresar los datos manualmente...\n");
+        printf("No se pudo cargar el archivo. Deberás ingresar los datos manualmente...\n");
         populateProcessesListByUserInput(processesList, initialProcessesQuantity);
     } else {
     	char line[1024];
@@ -176,15 +176,15 @@ void populateProcessesListByTxt(struct Process processesList[], int initialProce
 	}; 
 }
 
-void addNewProcess(struct Process processesList[], int arraySize) {
+void addNewProcess(struct Process processesList[], int processesQuantity) {
 	// Not used currently
 	int i;
-	for (i = 0; i < arraySize; i++) {
+	for (i = 0; i < processesQuantity; i++) {
 		if (strcmp(processesList[i].status, "Completed") == 0) {
 			processesList[i] = createProcessByUserInput();
 		};
 		
-		if (i == arraySize - 1) {
+		if (i == processesQuantity - 1) {
 			printf("Memory is full now. Trya later.\n");
 		}
 		
@@ -192,21 +192,21 @@ void addNewProcess(struct Process processesList[], int arraySize) {
 	}
 };
 
-void runProcessesPlanner(struct Process processesList[], int arraySize, int algorithm) {
+void runProcessesPlanner(struct Process processesList[], int processesQuantity, int algorithm) {
 	// Defines which algorithm will be executed on user's choice
 	switch (algorithm) {
 		case 1:
-			roundRobin(processesList, arraySize);
+			roundRobin(processesList, processesQuantity);
 			break;
 		case 2:
-			priority(processesList, arraySize);
+			priority(processesList, processesQuantity);
 			break;
 		default: // FIFO 
-			fifo(processesList, arraySize);
+			fifo(processesList, processesQuantity);
 	};
 };
 
-void roundRobin(struct Process processesList[], int arraySize) {
+void roundRobin(struct Process processesList[], int processesQuantity) {
 	float quantum;
 	clock_t startTime, currentTime;
 	
@@ -219,11 +219,11 @@ void roundRobin(struct Process processesList[], int arraySize) {
 	};
 	clearInputBuffer();
 		
-	while (!checkCompletion(processesList, arraySize)) {
+	while (!checkCompletion(processesList, processesQuantity)) {
 		system("cls");
 		printf("\nNew Round:\n");
 
-		for (int i = 0; i < arraySize; i++) {
+		for (int i = 0; i < processesQuantity; i++) {
 			// Skips the process if status == Completed
 			if (strcmp(processesList[i].status, "Completed") == 0) {
 				continue;
@@ -231,7 +231,7 @@ void roundRobin(struct Process processesList[], int arraySize) {
 			
 			strcpy(processesList[i].status, "Running");
 			
-			printStatus(processesList, arraySize);
+			printStatus(processesList, processesQuantity);
 						
 			// Resets the passed time
 			float passedTime = 0;
@@ -254,39 +254,39 @@ void roundRobin(struct Process processesList[], int arraySize) {
 			};
 		}
 		
-		printStatus(processesList, arraySize);
+		printStatus(processesList, processesQuantity);
 	}
 	
 	printf("\nSe completaron todos los procesos en cola...\n");
 }
 
-void priority(struct Process processesList[], int arraySize) {	
+void priority(struct Process processesList[], int processesQuantity) {	
 	system("cls");
 	
 	// Sorts by priority value (asc)
-	sortByPriority(processesList, arraySize);
+	sortByPriority(processesList, processesQuantity);
 	// Runs processes sequentially
-	runProcesses(processesList, arraySize);
+	runProcesses(processesList, processesQuantity);
 	
 	printf("\nSe completaron todos los procesos en cola...\n");
 }
 
-void fifo(struct Process processesList[], int arraySize) {
+void fifo(struct Process processesList[], int processesQuantity) {
 	system("cls");
 	
 	// Runs processes sequentially
-	runProcesses(processesList, arraySize);
+	runProcesses(processesList, processesQuantity);
 	
 	printf("\nSe completaron todos los procesos en cola...\n");
 }
 
-void runProcesses(struct Process processesList[], int arraySize) {
+void runProcesses(struct Process processesList[], int processesQuantity) {
 	int i;
-	for (i = 0; i < arraySize; i++) {
+	for (i = 0; i < processesQuantity; i++) {
 		float passedTime = 0;
 		clock_t startTime, currentTime;
 		
-		printStatus(processesList, arraySize);
+		printStatus(processesList, processesQuantity);
 		
 		// Gets the starting clock time
 		startTime = clock();
@@ -298,24 +298,24 @@ void runProcesses(struct Process processesList[], int arraySize) {
 		
 		strcpy(processesList[i].status, "Completed");
 		
-		printStatus(processesList, arraySize);
+		printStatus(processesList, processesQuantity);
 	}
 }
 
-void printStatus(struct Process processesList[], int arraySize) {
+void printStatus(struct Process processesList[], int processesQuantity) {
 	system("cls");
-	for (int j = 0; j < arraySize; j++) {
+	for (int j = 0; j < processesQuantity; j++) {
 		printf("\nEl proceso %s está en ejecución. Estado: %s.\n", processesList[j].title, processesList[j].status);
 	}
 }
 
-void sortByPriority(struct Process processesList[], int arraySize) {
+void sortByPriority(struct Process processesList[], int processesQuantity) {
 	int i, j;
 	struct Process aux;
 	
 	// For each element, checks all of the others to the right, and swaps if priority is precendent (1 is most)
-	for (i = 0; i < arraySize; i++) {
-        for (j = i + i; j < arraySize; j++) {
+	for (i = 0; i < processesQuantity; i++) {
+        for (j = i + 1; j < processesQuantity; j++) {
             if (processesList[i].priority > processesList[j].priority) {
                 aux = processesList[i];
 				processesList[i] = processesList[j];
@@ -325,11 +325,11 @@ void sortByPriority(struct Process processesList[], int arraySize) {
     };
 };
 
-bool checkCompletion(struct Process processesList[], int arraySize) {
+bool checkCompletion(struct Process processesList[], int processesQuantity) {
 	int i;
 	
 	// Looks for a process that's not already completed, if there isn't any will return true and the RR algorithm will end
-	for (i = 0; i < arraySize; i++) {
+	for (i = 0; i < processesQuantity; i++) {
 		if (strcmp(processesList[i].status, "Completed") != 0) {
 			return false;
 		}

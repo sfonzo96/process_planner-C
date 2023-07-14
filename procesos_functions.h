@@ -28,18 +28,18 @@ void populateProcessesListByTxt(struct Process processesList[], int initialProce
 // Adds a process to the list by replacing a completed one - Not in use currently
 void addNewProcess();
 // Starts processes planner with the selected algorithm
-void runProcessesPlanner(struct Process processesList[], int arraySize, int algorithm);
+void runProcessesPlanner(struct Process processesList[], int processesQuantity, int algorithm);
 // Runs processes sequentially
-void runProcesses(struct Process processesList[], int arraySize);
+void runProcesses(struct Process processesList[], int processesQuantity);
 // Sorts the array by priority value (1 is most precedent)
-void sortByPriority(struct Process processesList[], int arraySize);
+void sortByPriority(struct Process processesList[], int processesQuantity);
 // Runs Round Robin algorithm
-void roundRobin(struct Process processesList[], int arraySize);
+void roundRobin(struct Process processesList[], int processesQuantity);
 // Runs Priority algorithm
-void priority(struct Process processesList[], int arraySize);
+void priority(struct Process processesList[], int processesQuantity);
 // Runs FIFO (First In First Out) algorithm
-void fifo(struct Process processesList[], int arraySize);
+void fifo(struct Process processesList[], int processesQuantity);
 // Prints all processes status
-void printStatus(struct Process processesList[], int arraySize);
+void printStatus(struct Process processesList[], int processesQuantity);
 // Checks if all processes are completed (only for RR)
 bool checkCompletion(struct Process processesList[], int length);
